@@ -76,7 +76,7 @@ int main(){
     printf("(A) right char in wrong place\n");
     printf("A wrong char in wrong place\n");
     
-    char *words[] = {
+    char words[][6] = {
         "apple", "beach", "clock", "drive", "earth",
         "flame", "giant", "house", "image", "juice",
         "knife", "lemon", "music", "night", "ocean",
