@@ -18,7 +18,7 @@ bool wordCheck(char *inputWord, char *chosenWord){
 }
 
 bool checkChar(char c, char *input){
-    for(int i = 0; i < 6; i++){
+    for(int i = 0; i < 5; i++){
         if(c == input[i]){
             return true;
         }
@@ -74,6 +74,11 @@ char* loadWords(){
     if(pFile == NULL){
         printf("error reading the file\n");
     }
+
+    if(pFile == NULL){
+    printf("error reading the file\n");
+    return NULL;
+    }
     
     fseek(pFile, 0, SEEK_END); // seek to end of file
     int fileSize = ftell(pFile); // get current file pointer
@@ -114,7 +119,7 @@ int main(){
     char score[2] = {0};
     readScore(score);
 
-    printf("Highest Score: %s", score);
+    printf("last game Score: %s", score);
     printf("\nGuess a word from 5 chars in UPPER case!\n");
     printf("[A] right char in right place\n");
     printf("(A) right char in wrong place\n");
