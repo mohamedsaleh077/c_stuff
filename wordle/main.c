@@ -69,20 +69,24 @@ int genRand(int min, int max){
     return num;
 }
 
-int loadWords(char *buffer){
+char* loadWords(){
     FILE *pFile = fopen("words.txt", "r");
     if(pFile == NULL){
         printf("error reading the file\n");
-        return 1;
     }
+    
     fseek(pFile, 0, SEEK_END); // seek to end of file
     int fileSize = ftell(pFile); // get current file pointer
     fseek(pFile, 0, SEEK_SET); // seek back to beginning of file
 
-    buffer = malloc(fileSize + 1);
-    fread(buffer, sizeof(char), fileSize, pFile);
+    char *buffer = malloc(fileSize + 1);
+
+    size_t bytesRead = fread(buffer, 1, fileSize, pFile);
+    buffer[bytesRead] = '\0';
 
     fclose(pFile);
+
+    return buffer;
 }
 
 void saveScore(int score){
@@ -95,11 +99,11 @@ void saveScore(int score){
 }
 
 void readScore(char *score){
-    FILE *pFile = fopen("score.txt", "w");
+    FILE *pFile = fopen("score.txt", "r");
     if(pFile == NULL){
         printf("no saved score!\n");
     }
-    fgets(score, 1, pFile);
+    fgets(score, 2, pFile);
     fclose(pFile);
 }
 
@@ -107,22 +111,18 @@ int main(){
     srand(time(0));
 
     printf("M[O][R][D](E)[L]!\n");
-    char score[] = {0};
+    char score[2] = {0};
     readScore(score);
-    printf("Highest Score: %c", score);
-    printf("\nGuess a word from 5 chars in lower case!\n");
+
+    printf("Highest Score: %s", score);
+    printf("\nGuess a word from 5 chars in UPPER case!\n");
     printf("[A] right char in right place\n");
     printf("(A) right char in wrong place\n");
     printf("A wrong char in wrong place\n");
     
-    char *words;
+    char *words = loadWords();;
     printf("Loading words list from words.txt ...\n");
-
-    if (loadWords(words)){
-        printf("Cannot proccess without the words file");
-        return 1;
-    };
-
+    // printf("%s", words);
     int rnum = genRand(0,512);
     char word[6] = {0};
 
@@ -131,9 +131,9 @@ int main(){
         // printf("%d%c\n", i, words[(rnum*5) + i]);
     }
     word[5] = '\0';
-    // printf("%s", word);
+    printf("%s", word);
 
-    printf("Ready! -- TYPE IN UPPER CASE-- \n");
+    printf("Ready!\n");
     char buffer[50];
     char result[20];
     int tries = 6;
@@ -145,8 +145,8 @@ int main(){
             printf("no more or less than 5 chars, try again!\n");
         }else if(wordCheck(buffer, word)){
             printf("You guessed it right!,\n");
-            printf("Your Score is: %d", tried);
-            saveScore(tried);
+            printf("Your Score is: %d", tries - tried);
+            saveScore(tries - tried);
             tried = 6;
         }else{
             resultProcess(word, buffer, result);
