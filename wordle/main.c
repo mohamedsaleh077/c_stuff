@@ -61,44 +61,79 @@ void resultProcess(char *word, char *input, char *result){
                 cursor++;
         }
     }
+    result[cursor] = '\0';
 }
 
 int genRand(int min, int max){
-    srand(time(0));
     int num = (rand() % (max - min + 1)) + min;
     return num;
 }
 
+int loadWords(char *buffer){
+    FILE *pFile = fopen("words.txt", "r");
+    if(pFile == NULL){
+        printf("error reading the file\n");
+        return 1;
+    }
+    fseek(pFile, 0, SEEK_END); // seek to end of file
+    int fileSize = ftell(pFile); // get current file pointer
+    fseek(pFile, 0, SEEK_SET); // seek back to beginning of file
+
+    buffer = malloc(fileSize + 1);
+    fread(buffer, sizeof(char), fileSize, pFile);
+
+    fclose(pFile);
+}
+
+void saveScore(int score){
+    FILE *pFile = fopen("score.txt", "w");
+    if(pFile == NULL){
+        printf("error saving your score\n");
+    }
+    fprintf(pFile, "%d", score);
+    fclose(pFile);
+}
+
+void readScore(char *score){
+    FILE *pFile = fopen("score.txt", "w");
+    if(pFile == NULL){
+        printf("no saved score!\n");
+    }
+    fgets(score, 1, pFile);
+    fclose(pFile);
+}
+
 int main(){
+    srand(time(0));
+
     printf("M[O][R][D](E)[L]!\n");
+    char score[] = {0};
+    readScore(score);
+    printf("Highest Score: %c", score);
     printf("\nGuess a word from 5 chars in lower case!\n");
     printf("[A] right char in right place\n");
     printf("(A) right char in wrong place\n");
     printf("A wrong char in wrong place\n");
     
-    char words[][6] = {
-        "apple", "beach", "clock", "drive", "earth",
-        "flame", "giant", "house", "image", "juice",
-        "knife", "lemon", "music", "night", "ocean",
-        "paper", "queen", "river", "smile", "tiger",
-        "table", "fable", "cable", "label", "green",
-        "great", "width", "depth", "trade", "break",
-        "grade", "might", "sneak", "snack", "north",
-        "south", "earth", "bring", "dying", "sling",
-        "sharp", "shark", "start", "sheet", "smart",
-        "royal", "loyal", "piped", "hight", "minus",
-        "lorry", "truck", "death", "train", "grain",
-        "later", "trust", "brust", "space", "right",
-        "wrong", "guess", "dress", "place", "linux",
-        "close", "pause", "block", "brick", "build",
-        "heart", "brain", "brown", "drown", "black"
+    char *words;
+    printf("Loading words list from words.txt ...\n");
+
+    if (loadWords(words)){
+        printf("Cannot proccess without the words file");
+        return 1;
     };
 
-    int rnum = genRand(0,74);
-    char *s = words[rnum];
-    // printf("%d", rnum);
-    // printf("%s", words[rnum]);
-    char *word = s;
+    int rnum = genRand(0,512);
+    char word[6] = {0};
+
+    for(int i = 0; i < 5; i++){
+        word[i] = words[(rnum*5) + i];
+        // printf("%d%c\n", i, words[(rnum*5) + i]);
+    }
+    word[5] = '\0';
+    // printf("%s", word);
+
+    printf("Ready! -- TYPE IN UPPER CASE-- \n");
     char buffer[50];
     char result[20];
     int tries = 6;
@@ -109,7 +144,9 @@ int main(){
         if(strlen(buffer) != 5){
             printf("no more or less than 5 chars, try again!\n");
         }else if(wordCheck(buffer, word)){
-            printf("You guessed it right!\n");
+            printf("You guessed it right!,\n");
+            printf("Your Score is: %d", tried);
+            saveScore(tried);
             tried = 6;
         }else{
             resultProcess(word, buffer, result);
@@ -117,8 +154,10 @@ int main(){
             tried++;
         }
     }
-    
     printf("\nthe word is: %s ", word);
     printf("Game Over!\n");
+
+    free(words);
+    words = NULL;
     return 0;
 }
