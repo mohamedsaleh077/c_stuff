@@ -71,13 +71,10 @@ int genRand(int min, int max){
 
 char* loadWords(){
     FILE *pFile = fopen("words.txt", "r");
-    if(pFile == NULL){
-        printf("error reading the file\n");
-    }
 
     if(pFile == NULL){
-    printf("error reading the file\n");
-    return NULL;
+        printf("error reading the words file\n");
+        return NULL;
     }
     
     fseek(pFile, 0, SEEK_END); // seek to end of file
@@ -85,6 +82,12 @@ char* loadWords(){
     fseek(pFile, 0, SEEK_SET); // seek back to beginning of file
 
     char *buffer = malloc(fileSize + 1);
+
+    if(buffer == NULL){
+        printf("error in loading the words file into the memory\n");
+        fclose(pFile);
+        return NULL;
+    }
 
     size_t bytesRead = fread(buffer, 1, fileSize, pFile);
     buffer[bytesRead] = '\0';
@@ -98,18 +101,20 @@ void saveScore(int score){
     FILE *pFile = fopen("score.txt", "w");
     if(pFile == NULL){
         printf("error saving your score\n");
+    }else{
+        fprintf(pFile, "%d", score);
+        fclose(pFile);
     }
-    fprintf(pFile, "%d", score);
-    fclose(pFile);
 }
 
 void readScore(char *score){
     FILE *pFile = fopen("score.txt", "r");
     if(pFile == NULL){
         printf("no saved score!\n");
+    } else {
+        fgets(score, 2, pFile);
+        fclose(pFile);
     }
-    fgets(score, 2, pFile);
-    fclose(pFile);
 }
 
 int main(){
@@ -125,7 +130,11 @@ int main(){
     printf("(A) right char in wrong place\n");
     printf("A wrong char in wrong place\n");
     
-    char *words = loadWords();;
+    char *words = loadWords();
+    if(words == NULL){
+        printf("Can not run without words.txt file");
+        return 1;
+    }
     printf("Loading words list from words.txt ...\n");
     // printf("%s", words);
     int rnum = genRand(0,512);
@@ -136,7 +145,7 @@ int main(){
         // printf("%d%c\n", i, words[(rnum*5) + i]);
     }
     word[5] = '\0';
-    printf("%s", word);
+    // printf("%s", word);
 
     printf("Ready!\n");
     char buffer[50];
