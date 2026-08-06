@@ -19,7 +19,7 @@ int find_critical_move(char* grid, char c, bool is_winner){
         for(int j = 0; j < 3; j++){
             int idx = WINNING_STATUES[i][j];
             if(grid[idx] == c){ count++; }
-            else if(grid[idx] != 'x' || grid[idx] != 'o'){
+            else if(grid[idx] != 'x' && grid[idx] != 'o'){
                 empty = idx;
             }
         }
