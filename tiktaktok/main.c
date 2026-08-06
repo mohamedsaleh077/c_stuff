@@ -19,7 +19,9 @@ int find_critical_move(char* grid, char c, bool is_winner){
         for(int j = 0; j < 3; j++){
             int idx = WINNING_STATUES[i][j];
             if(grid[idx] == c){ count++; }
-            else{empty = idx;}
+            else if(grid[idx] != 'x' || grid[idx] != 'o'){
+                empty = idx;
+            }
         }
         if(is_winner){
             if(count == 3){ return -1;}
@@ -58,7 +60,7 @@ void computer_play(char* grid){
     }
 
     // use cross if not used
-    if(move == 9 && grid[4] != 'x' && grid[4] != 'o' || invalid_move(grid, move)){ move = 4; }
+    if((move == 9 && grid[4] != 'x' && grid[4] != 'o' ) || invalid_move(grid, move)){ move = 4; }
 
     // get corners
     if(move == 9 || invalid_move(grid, move)){ move = corner_move(grid); }
