@@ -60,7 +60,7 @@ void computer_play(char* grid){
     }
 
     // use cross if not used
-    if((move == 9 && grid[4] != 'x' && grid[4] != 'o' ) || invalid_move(grid, move)){ move = 4; }
+    if((move == 9 && grid[4] != 'x' && grid[4] != 'o' ) && invalid_move(grid, move)){ move = 4; }
 
     // get corners
     if(move == 9 || invalid_move(grid, move)){ move = corner_move(grid); }
