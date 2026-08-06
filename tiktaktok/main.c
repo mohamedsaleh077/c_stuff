@@ -43,6 +43,9 @@ int corner_move(char* grid){
 }
 
 bool invalid_move(char* grid, int move){
+    if(move == 9){
+        return true;
+    }
     if(grid[move] == 'x' || grid[move] == 'o'){
         return true;
     }
