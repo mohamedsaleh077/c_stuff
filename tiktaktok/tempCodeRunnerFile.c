@@ -1,0 +1,1 @@
+computer_cross_think(grid);
