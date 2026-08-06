@@ -13,7 +13,7 @@ const int WINNING_STATUES[8][3] = {
 };
 
 int find_critical_move(char* grid, char c, bool is_winner){
-    for(int i = 0; i < 9; i++){
+    for(int i = 0; i < 8; i++){
         int count = 0;
         int empty = 9;
         for(int j = 0; j < 3; j++){
@@ -24,7 +24,7 @@ int find_critical_move(char* grid, char c, bool is_winner){
         if(is_winner){
             if(count == 3){ return -1;}
         }
-        if(count == 2 && count != 9){ return count; }
+        if(count == 2 && count != 9){ return empty; }
     }
     return 9;
 }
@@ -40,25 +40,34 @@ int corner_move(char* grid){
     return 9;
 }
 
+bool invalid_move(char* grid, int move){
+    if(grid[move] == 'x' || grid[move] == 'o'){
+        return true;
+    }
+    return false;
+}
+
 void computer_play(char* grid){
     int move = 9;
     // best move for win
     move = find_critical_move(grid, 'x', false);
 
     // block the way for the player
-    if(move == 9){ move = find_critical_move(grid, 'o', false); }
+    if(move == 9 || invalid_move(grid, move)){ 
+        move = find_critical_move(grid, 'o', false);
+    }
 
     // use cross if not used
-    if(move == 9 && grid[4] != 'x' && grid[4] != 'o'){ move = 4; }
+    if(move == 9 && grid[4] != 'x' && grid[4] != 'o' || invalid_move(grid, move)){ move = 4; }
 
     // get corners
-    if(move == 9){ move = corner_move(grid); }
+    if(move == 9 || invalid_move(grid, move)){ move = corner_move(grid); }
 
     // do move
-    if(move >= 0 && move < 9){ grid[move] = 'x'; }
+    if(move >= 0 && move < 9 && !invalid_move(grid, move)){ grid[move] = 'x'; }
 }
 
-void redner(char* grid, int* input){
+void redner(char* grid){
     printf("\033[H\033[J");
 
     printf("Tik Tak Tok\n");
@@ -68,15 +77,13 @@ void redner(char* grid, int* input){
     printf("———————————\n");
     printf(" %c | %c | %c \n",grid[6] ,grid[7] ,grid[8] );
 
-    printf("where would you play? ");
-    scanf("%1d", input);
-
     fflush(stdout);
 }
 
-Status_t player_win(char* grid){
-    int status = find_critical_move(grid, 'o', true);
-    if(status == -1){ return WIN; }
+Status_t winner(char* grid, char player){
+    int status = find_critical_move(grid, player, true);
+    if(status == -1 && player == 'o'){ return WIN; }
+    if(status == -1 && player == 'x'){ return LOSE; }
     for(int i = 0; i < 9; i++){
         if(grid[i] != 'x' && grid[i] != 'o'){
             return PLAYING;
@@ -99,20 +106,23 @@ void show_results(Status_t *player){
     }
 }
 
-void user_input_and_validate(char* grid, int* input){
+void user_input_and_validate(char* grid){
+    int input = 0;
     while(true){
-        if(grid[*input] != 'o' && grid[*input] != 'x'){
-            grid[*input] = 'o';
+        printf("where would you play? ");
+        scanf("%1d", &input);
+        if(grid[input] != 'o' && grid[input] != 'x'){
+            grid[input] = 'o';
             break;
         }else{
-            redner(grid, input);
+            redner(grid);
         }
     }
 }
 
 int main(){
     bool running = true;
-    Status_t player = DRAW;
+    Status_t player = PLAYING;
 
     char grid[9] = {
         '0', '1', '2',
@@ -122,15 +132,16 @@ int main(){
     int input = 0;
     
     while(running){
-        redner(grid, &input);
-        user_input_and_validate(grid, &input);
-        player = player_win(grid);
-        if(player == PLAYING){
-            computer_play(grid);
-        }else{
-            show_results(&player);
-        }
+        redner(grid);
+        user_input_and_validate(grid);
+        player = winner(grid, 'o');
+        if(player != PLAYING){ break; }
+        computer_play(grid);
+        player = winner(grid, 'x');
+        if(player != PLAYING){ break; }
     }
+    redner(grid);
+    show_results(&player);
 
     return 0;
 }
