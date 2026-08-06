@@ -26,7 +26,7 @@ int find_critical_move(char* grid, char c, bool is_winner){
         if(is_winner){
             if(count == 3){ return -1;}
         }
-        if(count == 2 && count != 9){ return empty; }
+        if(count == 2 && empty != 9){ return empty; }
     }
     return 9;
 }
@@ -43,7 +43,7 @@ int corner_move(char* grid){
 }
 
 bool invalid_move(char* grid, int move){
-    if(move == 9){
+    if(move < 0 || move >= 9){
         return true;
     }
     if(grid[move] == 'x' || grid[move] == 'o'){
@@ -58,18 +58,18 @@ void computer_play(char* grid){
     move = find_critical_move(grid, 'x', false);
 
     // block the way for the player
-    if(move == 9 || invalid_move(grid, move)){ 
+    if(invalid_move(grid, move)){ 
         move = find_critical_move(grid, 'o', false);
     }
 
     // use cross if not used
-    if((move == 9 && grid[4] != 'x' && grid[4] != 'o' ) && invalid_move(grid, move)){ move = 4; }
+    if((grid[4] != 'x' && grid[4] != 'o' ) && invalid_move(grid, move)){ move = 4; }
 
     // get corners
-    if(move == 9 || invalid_move(grid, move)){ move = corner_move(grid); }
+    if(invalid_move(grid, move)){ move = corner_move(grid); }
 
     // do move
-    if(move >= 0 && move < 9 && !invalid_move(grid, move)){ grid[move] = 'x'; }
+    if(!invalid_move(grid, move)){ grid[move] = 'x'; }
 }
 
 void redner(char* grid){
